@@ -25,7 +25,12 @@ map_lis = []
 rate_lis = []
 review_lis = []
 num_review_lis = []
-
+list_style_lis = []
+all_url_lis = []
+get_around_lis = []
+near_by_lis = []
+near_by_hotel_lis = []
+get_around_lis = []
 for i in url_lis: 
     print(i)
     driver.get(i)
@@ -61,6 +66,30 @@ for i in url_lis:
     num_review_lis.append(num_review)
     print(num_review)
 
+    #for c in soupx.find('ul',{'class':'Liststyled__ListStyled-sc-ksl08h-0'}).find_all('li'): 
+    #    print(c.text)
+    #    list_style_lis.append(c.text)
+    
+    all_ul = soupx.find_all('ul')[1:]
+    n = 0
+    for x in all_ul: 
+        print(n)
+        all_url_lis.append([ item.text for item in x.find_all('li')]) 
+        print([ item.text for item in x.find_all('li')])
+        n = n + 1
+
+
+    near_by = [ c.text for c in soupx.find_all('div',{'class':'NearByLocationBox__ListItem'})]
+    near_by_lis.append(near_by)
+    #get_around = driver.find_element(By.XPATH,'//*[@id="abouthotel-features"]/div[2]/div[12]/ul')
+    #get_around_item = [ item.text for item in get_around.find_elements(By.CSS_SELECTOR,'li')]
+    #get_around_lis.append(get_around_item)
+
+    near_by_hotel = [ c.text for c in soupx.find_all('div',{'data-element-name':'about-hotel-whats-nearby-section'})]
+    near_by_hotel_lis.append(near_by_hotel)
+
+    get_around = [ c.text for c in soupx.find_all('div',{'data-element-value':'available'})]
+    get_around_lis.append(get_around)
 
 df = pd.DataFrame()
 df['Title'] = name_lis 
@@ -69,5 +98,7 @@ df['Location'] = loc_lis
 df['Rating'] = rate_lis 
 df['Total Review'] = num_review_lis 
 df['Review'] = review_lis
-
+df['Near By'] = near_by_lis
+df['Near By Location'] = near_by_hotel_lis
+df['Getting Around'] = get_around_lis
 df.to_excel("Hotel.xlsx")
