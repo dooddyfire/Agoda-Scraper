@@ -24,13 +24,16 @@ loc_lis = []
 map_lis = []
 rate_lis = []
 review_lis = []
-num_review_lis = []
+
 list_style_lis = []
 all_url_lis = []
 get_around_lis = []
 near_by_lis = []
 near_by_hotel_lis = []
-get_around_lis = []
+room_num_lis = []
+room_lis = []
+num_review_lis = []
+
 for i in url_lis: 
     print(i)
     driver.get(i)
@@ -57,39 +60,46 @@ for i in url_lis:
     rate_lis.append(str(rate).replace('<h4 class="Typographystyled__TypographyStyled-sc-j18mtu-0 gouaKT kite-js-Typography">',"").replace("</h4>",""))
     print(str(rate).replace('<h4 class="Typographystyled__TypographyStyled-sc-j18mtu-0 gouaKT kite-js-Typography">',"").replace("</h4>",""))
 
+
     review = soupx.find('span',{'class':'Spanstyled__SpanStyled-sc-16tp9kb-0'}).text
     review_lis.append(review)
     print(review)
 
+    try:
+        num_review = soupx.find('div',{'class':'review-basedon'}).find('span').text 
+        num_review_lis.append(num_review)
+        print(num_review)
+    except: 
+        num_review = "ไม่มี"
+        num_review_lis.append(num_review)
+        print(num_review)       
 
-    num_review = soupx.find('div',{'class':'review-basedon'}).find('span').text 
-    num_review_lis.append(num_review)
-    print(num_review)
+    #near_by_hotel = [ c.text for c in soupx.find_all('div',{'data-element-name':'about-hotel-whats-nearby-section'})]
+    #near_by_hotel_lis.append(near_by_hotel)
 
-    #for c in soupx.find('ul',{'class':'Liststyled__ListStyled-sc-ksl08h-0'}).find_all('li'): 
-    #    print(c.text)
-    #    list_style_lis.append(c.text)
-    
-    all_ul = soupx.find_all('ul')[1:]
-    n = 0
-    for x in all_ul: 
-        print(n)
-        all_url_lis.append([ item.text for item in x.find_all('li')]) 
-        print([ item.text for item in x.find_all('li')])
-        n = n + 1
+    near_by_lis = [ c.text for c in soupx.find_all('span',{'class':'NearByLocationBox__ListItem--title'})]
+    near_by_hotel_lis.append(near_by_lis)
+
+    try:
+        get_around = [ i.text for i in soupx.find('div',{'id':'abouthotel-usefulinfo'}).find_all('ul')]
+        get_around_lis.append(" ".join(get_around))
 
 
-    near_by = [ c.text for c in soupx.find_all('div',{'class':'NearByLocationBox__ListItem'})]
-    near_by_lis.append(near_by)
-    #get_around = driver.find_element(By.XPATH,'//*[@id="abouthotel-features"]/div[2]/div[12]/ul')
-    #get_around_item = [ item.text for item in get_around.find_elements(By.CSS_SELECTOR,'li')]
-    #get_around_lis.append(get_around_item)
+    except:
+        get_around = [ d.text for d in soupx.find_all('div',{'id':'abouthotel-usefulinfo'})]
 
-    near_by_hotel = [ c.text for c in soupx.find_all('div',{'data-element-name':'about-hotel-whats-nearby-section'})]
-    near_by_hotel_lis.append(near_by_hotel)
 
-    get_around = [ c.text for c in soupx.find_all('div',{'data-element-value':'available'})]
-    get_around_lis.append(get_around)
+        get_around_lis.append(",".join(get_around))
+
+
+    try:
+        room_lis = get_around.index("จำนวนห้อง")+1
+        room_num_lis.append(get_around[room_lis])
+    except:
+        room_num_lis.append("ไม่มี")
+
+
+
 
 df = pd.DataFrame()
 df['Title'] = name_lis 
@@ -98,7 +108,8 @@ df['Location'] = loc_lis
 df['Rating'] = rate_lis 
 df['Total Review'] = num_review_lis 
 df['Review'] = review_lis
-df['Near By'] = near_by_lis
-df['Near By Location'] = near_by_hotel_lis
-df['Getting Around'] = get_around_lis
+df['Near by Hotel'] = near_by_hotel_lis
+df['Get Around'] = get_around_lis
+
+
 df.to_excel("Hotel.xlsx")
